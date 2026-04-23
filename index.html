@@ -3,50 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StreamSearch Pro</title>
+    <title>AniKai | Anime & Manga</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="background-overlay"></div>
 
     <nav class="navbar">
         <div class="nav-left">
-            <div class="logo">Stream<span>Search</span></div>
+            <div class="logo">Ani<span>Kai</span></div>
             <div class="nav-links">
-                <button onclick="loadTrending()" class="nav-item active" id="homeBtn">Home</button>
-                <button onclick="setMode('movie')" class="nav-item" id="movieBtn">Movies</button>
-                <button onclick="setMode('tv')" class="nav-item" id="tvBtn">TV Shows</button>
-                <button onclick="setMode('anime')" class="nav-item" id="animeBtn">Anime</button>
-                <button onclick="showMyList()" class="nav-item" id="listBtn">My List (<span id="listCount">0</span>)</button>
+                <button onclick="resetAndLoad('top')" class="nav-item active" id="topBtn">Top Anime</button>
+                <button onclick="resetAndLoad('manga')" class="nav-item" id="mangaBtn">Top Manga</button>
+                <button onclick="resetAndLoad('trending')" class="nav-item" id="trendBtn">Trending</button>
             </div>
         </div>
-        </nav>
+        <div class="search-bar-top">
+            <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+            <i class="fas fa-search"></i>
+        </div>
+    </nav>
 
-    <header class="hero">
-        <div class="search-wrapper">
-            <div class="search-container">
-                <select id="regionSelect" class="region-dropdown">
-                    <option value="IN">🇮🇳 IN</option>
-                    <option value="US">🇺🇸 US</option>
-                    <option value="GB">🇬🇧 UK</option>
-                    <option value="CA">🇨🇦 CA</option>
-                    <option value="JP">🇯🇵 JP</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Search for movies, TV shows, or anime..." autocomplete="off">
-                <button id="searchBtn"><i class="fas fa-search"></i></button>
-            </div>
-            <div id="suggestions" class="suggestions-box"></div>
-        </div>
+    <header class="hero-minimal">
+        <h2 id="sectionTitle">Highest Rated Anime</h2>
     </header>
 
     <main class="results-grid" id="resultsGrid"></main>
 
-    <div id="movieModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div id="modalDetails"></div>
-        </div>
+    <div class="load-more-container">
+        <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
     </div>
 
     <script src="app.js"></script>

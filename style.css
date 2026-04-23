@@ -1,91 +1,72 @@
 :root {
-    --primary: #e50914; 
-    --bg: #0a0a0a;
-    --glass: rgba(255, 255, 255, 0.08);
-    --border: rgba(255, 255, 255, 0.15);
+    --primary: #5865F2; 
+    --bg: #0b0b0b;
+    --card-bg: #161616;
 }
 
 body {
     background: var(--bg);
     color: white;
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Outfit', sans-serif;
     margin: 0;
-    overflow-x: hidden;
 }
 
 .background-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle at 20% 30%, #1a1a1a 0%, #000000 100%);
+    background: radial-gradient(circle at top right, #1a1b26, #0b0b0b);
     z-index: -1;
 }
 
 .navbar {
     position: fixed;
     top: 0; width: 100%; z-index: 1000;
-    display: flex; justify-content: flex-start; align-items: center;
-    padding: 15px 4%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
-    transition: background 0.4s;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 5%;
+    background: rgba(11, 11, 11, 0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     box-sizing: border-box;
 }
 
-.navbar.scrolled { background: #000000; }
-
-.nav-left { display: flex; align-items: center; gap: 40px; }
-.logo { font-size: 1.8rem; font-weight: 800; letter-spacing: -1px; }
+.logo { font-size: 1.6rem; font-weight: 800; letter-spacing: -1px; }
 .logo span { color: var(--primary); }
 
-.nav-links { display: flex; gap: 20px; }
+.nav-links { display: flex; gap: 25px; margin-left: 40px; }
 .nav-item {
-    background: transparent; border: none; color: #e5e5e5;
-    font-size: 0.85rem; cursor: pointer; transition: 0.3s;
+    background: transparent; border: none; color: #949494;
+    font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: 0.3s;
 }
 .nav-item:hover, .nav-item.active { color: white; }
 
-.hero { padding-top: 140px; text-align: center; }
-.search-wrapper { position: relative; max-width: 650px; margin: 0 auto; }
-.search-container {
-    background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border);
-    padding: 5px; border-radius: 4px; display: flex;
+.search-bar-top { background: #1f1f1f; border-radius: 6px; display: flex; align-items: center; padding: 5px 15px; width: 250px; }
+.search-bar-top input { background: transparent; border: none; color: white; padding: 8px; font-size: 0.85rem; outline: none; width: 100%; }
+.search-bar-top i { color: #666; }
+
+.hero-minimal { padding: 100px 5% 0; }
+#sectionTitle { font-size: 1.2rem; font-weight: 600; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
+
+.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px 5%; }
+.card {
+    background: var(--card-bg); border-radius: 4px; overflow: hidden;
+    transition: 0.2s ease-in-out; border: 1px solid transparent; cursor: pointer;
+    position: relative;
+}
+.card:hover { transform: translateY(-5px); border-color: var(--primary); }
+.card img { width: 100%; height: 240px; object-fit: cover; }
+
+.rating-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0, 0, 0, 0.8); color: #ffad00;
+    padding: 2px 8px; border-radius: 4px; font-weight: 800; font-size: 0.75rem;
+    border: 1px solid #ffad00;
 }
 
-.region-dropdown {
-    background: transparent; color: white; border: none;
-    padding: 0 15px; font-size: 0.8rem; border-right: 1px solid var(--border);
+.card h4 { padding: 10px; font-size: 0.8rem; font-weight: 500; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.load-more-container { text-align: center; padding: 40px; }
+#loadMoreBtn {
+    background: var(--primary); color: white; border: none;
+    padding: 12px 30px; border-radius: 6px; font-weight: 600;
+    cursor: pointer; transition: 0.3s;
 }
-.region-dropdown option { background: #1a1a1a; }
-
-input { flex: 1; background: transparent; border: none; padding: 12px; color: white; outline: none; }
-#searchBtn { background: transparent; color: white; border: none; padding: 0 15px; cursor: pointer; font-size: 1.2rem; }
-
-.suggestions-box {
-    position: absolute; top: 100%; left: 0; right: 0; background: #141414;
-    border-radius: 0 0 4px 4px; z-index: 100; display: none; border: 1px solid var(--border);
-}
-.suggestion-item { padding: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-.suggestion-item:hover { background: #2f2f2f; }
-.suggestion-item img { width: 35px; border-radius: 2px; }
-
-.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; padding: 40px 4%; }
-.card { border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.3s; background: #141414; }
-.card:hover { transform: scale(1.05); z-index: 2; }
-.card img { width: 100%; height: 280px; object-fit: cover; }
-.card h4 { padding: 10px; margin: 0; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-.modal { display: none; position: fixed; z-index: 2000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); }
-.modal-content { background: #181818; margin: 5% auto; padding: 0; width: 90%; max-width: 700px; border-radius: 8px; overflow: hidden; position: relative; }
-.close-modal { position: absolute; right: 20px; top: 15px; font-size: 30px; cursor: pointer; z-index: 10; }
-
-.trailer-btn {
-    display: inline-block; background: #ffffff; color: black;
-    padding: 10px 25px; border-radius: 4px; text-decoration: none;
-    font-weight: bold; margin-bottom: 20px; transition: 0.3s;
-}
-.trailer-btn:hover { background: #e6e6e6; }
-
-.list-add-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid white; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
-.list-add-btn:hover { background: rgba(255,255,255,0.2); }
-
-.loader { width: 40px; height: 40px; border: 4px solid #333; border-top-color: var(--primary); border-radius: 50%; margin: 50px auto; animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+#loadMoreBtn:hover { opacity: 0.8; transform: scale(1.05); }
