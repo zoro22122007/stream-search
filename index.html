@@ -22,13 +22,14 @@
             </div>
         </div>
         <div class="search-bar-top">
-            <i class="fas fa-search" style="color: #666;"></i>
+            <i class="fas fa-search"></i>
             <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
         </div>
     </nav>
 
-    <header class="hero-section">
-        <h2 id="sectionTitle">Highest Rated Anime</h2>
+    <header class="hero-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 id="sectionTitle" style="margin:0;">Highest Rated Anime</h2>
+        <button id="clearAllBtn" onclick="clearFullList()" style="display: none;">Clear All Items</button>
     </header>
 
     <main class="results-grid" id="resultsGrid"></main>
