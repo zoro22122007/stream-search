@@ -2,8 +2,17 @@ const JIKAN_BASE = 'https://api.jikan.moe/v4';
 let currentPage = 1;
 let currentMode = 'top/anime';
 let searchTimeout;
+let isLoading = false;
 
 window.onload = () => loadData();
+
+// INFINITE SCROLL
+window.onscroll = function() {
+    if (currentMode === 'mylist') return;
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200) {
+        if (!isLoading) loadData();
+    }
+};
 
 function getMyList() {
     return JSON.parse(localStorage.getItem('animeHubList')) || [];
@@ -12,8 +21,9 @@ function getMyList() {
 function setMode(mode, btnId) {
     currentMode = mode;
     currentPage = 1;
+    isLoading = false;
     document.getElementById('resultsGrid').innerHTML = '';
-    document.getElementById('searchInput').value = ''; // Clear search on mode switch
+    document.getElementById('searchInput').value = ''; 
     
     document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
     document.getElementById(btnId).classList.add('active');
@@ -21,24 +31,28 @@ function setMode(mode, btnId) {
     const clearBtn = document.getElementById('clearAllBtn');
     if (mode === 'mylist') {
         document.getElementById('sectionTitle').innerText = "My Saved List";
-        document.getElementById('loadMoreBtn').style.display = 'none';
         clearBtn.style.display = 'block';
         displayCards(getMyList());
     } else {
-        document.getElementById('loadMoreBtn').style.display = 'block';
         clearBtn.style.display = 'none';
-        const titles = { 'top/anime': 'Highest Rated Anime', 'top/manga': 'Highest Rated Manga', 'seasons/now': 'Trending' };
+        const titles = {'top/anime': 'Highest Rated Anime', 'top/manga': 'Highest Rated Manga', 'seasons/now': 'Trending'};
         document.getElementById('sectionTitle').innerText = titles[mode];
         loadData();
     }
 }
 
 async function loadData() {
+    if (isLoading) return;
+    isLoading = true;
     try {
         const res = await fetch(`${JIKAN_BASE}/${currentMode}?page=${currentPage}`);
         const data = await res.json();
-        displayCards(data.data);
+        if (data.data && data.data.length > 0) {
+            displayCards(data.data);
+            currentPage++;
+        }
     } catch (err) { console.error(err); }
+    finally { setTimeout(() => { isLoading = false; }, 500); }
 }
 
 function displayCards(list) {
@@ -59,7 +73,7 @@ function displayCards(list) {
 
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.animationDelay = `${index * 0.03}s`;
+        card.style.animationDelay = `${(index % 20) * 0.04}s`;
 
         const buttonIcon = isMyListPage ? '✕' : '+';
         const buttonClass = isMyListPage ? 'action-btn remove-mode' : 'action-btn';
@@ -80,7 +94,6 @@ function displayCards(list) {
             const homeUrl = currentMode.includes('manga') ? 'https://mangafire.to/home' : 'https://anikai.to/home';
             window.open(homeUrl, '_blank');
         };
-
         grid.appendChild(card);
     });
 }
@@ -88,7 +101,6 @@ function displayCards(list) {
 function handleAction(event, button, item) {
     event.stopPropagation();
     let list = getMyList();
-
     if (currentMode === 'mylist') {
         list = list.filter(s => s.id !== item.id);
         localStorage.setItem('animeHubList', JSON.stringify(list));
@@ -101,11 +113,8 @@ function handleAction(event, button, item) {
             list.push(item);
             localStorage.setItem('animeHubList', JSON.stringify(list));
             button.innerText = '✓';
-            button.style.background = '#2ed573';
-            setTimeout(() => {
-                button.innerText = '+';
-                button.style.background = '';
-            }, 1000);
+            button.classList.add('added');
+            setTimeout(() => { button.innerText = '+'; button.classList.remove('added'); }, 1000);
         }
     }
 }
@@ -114,36 +123,27 @@ function clearFullList() {
     localStorage.setItem('animeHubList', JSON.stringify([]));
     const cards = document.querySelectorAll('.card');
     cards.forEach((card, i) => {
-        setTimeout(() => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-        }, i * 20);
+        setTimeout(() => { card.style.opacity = '0'; card.style.transform = 'translateY(20px)'; }, i * 20);
     });
     setTimeout(() => { document.getElementById('resultsGrid').innerHTML = ''; }, 500);
 }
 
-// LIVE SEARCH LOGIC (Starts as you type)
 document.getElementById('searchInput').addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
     const query = e.target.value.trim();
-    
-    if (query.length < 2) {
-        if (query.length === 0) setMode(currentMode, document.querySelector('.nav-item.active').id);
+    if (query.length === 0) {
+        setMode(currentMode, document.querySelector('.nav-item.active').id);
         return;
     }
-
     searchTimeout = setTimeout(async () => {
         const type = currentMode.includes('manga') ? 'manga' : 'anime';
         const res = await fetch(`${JIKAN_BASE}/${type}?q=${query}&limit=20`);
         const data = await res.json();
-        
-        // Filter only those that START with the letter/word (case insensitive)
         const filtered = data.data.filter(item => {
             const name = (item.title_english || item.title).toLowerCase();
             return name.startsWith(query.toLowerCase());
         });
-
         document.getElementById('resultsGrid').innerHTML = '';
-        displayCards(filtered.length > 0 ? filtered : data.data); // Fallback to broad search if strict starts-with is empty
+        displayCards(filtered.length > 0 ? filtered : data.data);
     }, 500);
 });
