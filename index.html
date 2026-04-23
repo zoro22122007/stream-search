@@ -3,36 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeHub | Premium</title>
+    <title>AnimeHub | The Ultimate Experience</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="background-overlay"></div>
+    <div class="glow-bg"></div>
+    <div class="noise-overlay"></div>
 
-    <nav class="navbar">
-        <div class="nav-left">
-            <div class="logo" onclick="setMode('top/anime', 'topAnime')">Anime<span>Hub</span></div>
-            <div class="nav-links">
-                <button class="nav-item active" id="topAnime" onclick="setMode('top/anime', 'topAnime')">Top Anime</button>
-                <button class="nav-item" id="topManga" onclick="setMode('top/manga', 'topManga')">Top Manga</button>
-                <button class="nav-item" id="trending" onclick="setMode('seasons/now', 'trending')">Trending</button>
-                <button class="nav-item" id="myList" onclick="setMode('mylist', 'myList')">My List</button>
-            </div>
-        </div>
-        <div class="search-bar-top">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+    <nav class="sidebar">
+        <div class="logo" onclick="setMode('top/anime', 'topAnime')">A<span>H</span></div>
+        <div class="nav-links-vertical">
+            <button class="nav-btn active" id="topAnime" onclick="setMode('top/anime', 'topAnime')" title="Top Anime"><i class="fas fa-tv"></i></button>
+            <button class="nav-btn" id="topManga" onclick="setMode('top/manga', 'topManga')" title="Top Manga"><i class="fas fa-book-open"></i></button>
+            <button class="nav-btn" id="trending" onclick="setMode('seasons/now', 'trending')" title="Trending"><i class="fas fa-fire"></i></button>
+            <button class="nav-btn" id="myList" onclick="setMode('mylist', 'myList')" title="My Collection"><i class="fas fa-bookmark"></i></button>
         </div>
     </nav>
 
-    <header class="hero-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 id="sectionTitle" style="margin:0;">Highest Rated Anime</h2>
-        <button id="clearAllBtn" onclick="clearFullList()" style="display: none;">Clear All Items</button>
-    </header>
+    <div class="main-content">
+        <header class="top-nav">
+            <div class="search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search across 50,000+ titles..." autocomplete="off">
+            </div>
+            <button id="clearAllBtn" onclick="clearFullList()" style="display: none;">Clear Collection</button>
+        </header>
 
-    <main class="results-grid" id="resultsGrid"></main>
+        <section class="hero-header">
+            <h1 id="sectionTitle">Global Top Rated</h1>
+            <div class="accent-line"></div>
+        </section>
+
+        <main class="results-grid" id="resultsGrid"></main>
+    </div>
 
     <script src="app.js"></script>
 </body>
