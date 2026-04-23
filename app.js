@@ -24,8 +24,6 @@ function resetAndLoad(type) {
 
 async function loadData() {
     let url = "";
-    const grid = document.getElementById('resultsGrid');
-
     if (currentFetchType === 'top') {
         document.getElementById('sectionTitle').innerText = "Highest Rated Anime";
         url = `${TMDB_BASE}/discover/tv?api_key=${TMDB_API_KEY}&with_genres=16&with_original_language=ja&sort_by=vote_average.desc&vote_count.gte=100&page=${currentPage}`;
@@ -78,7 +76,7 @@ function displayCards(list) {
         card.className = 'card';
         card.innerHTML = `
             <div class="rating-badge">⭐ ${item.rating ? item.rating.toFixed(1) : 'N/A'}</div>
-            <img src="${item.img}">
+            <img src="${item.img}" loading="lazy">
             <h4>${item.name}</h4>
         `;
         card.onclick = () => window.open(item.link, '_blank');
@@ -86,14 +84,14 @@ function displayCards(list) {
     });
 }
 
-// Search Logic
+// Search Functionality
 document.getElementById('searchInput').addEventListener('input', async (e) => {
     const query = e.target.value;
     if (query.length < 2) return;
     
-    const grid = document.getElementById('resultsGrid');
-    grid.innerHTML = '';
-    
+    document.getElementById('resultsGrid').innerHTML = '';
+    document.getElementById('loadMoreBtn').style.display = 'none';
+
     if (currentFetchType === 'manga') {
         const res = await fetch(`${JIKAN_BASE}/manga?q=${encodeURIComponent(query)}`);
         const data = await res.json();
