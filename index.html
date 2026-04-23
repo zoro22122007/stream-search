@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnimeHub | Portal</title>
+    <title>AnimeHub | Premium</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -13,21 +13,21 @@
 
     <nav class="navbar">
         <div class="nav-left">
-            <div class="logo" onclick="resetAndLoad('top')">Anime<span>Hub</span></div>
+            <div class="logo" onclick="setMode('top/anime', 'topAnime')">Anime<span>Hub</span></div>
             <div class="nav-links">
-                <button onclick="resetAndLoad('top')" class="nav-item active" id="topBtn">Top Anime</button>
-                <button onclick="resetAndLoad('manga')" class="nav-item" id="mangaBtn">Top Manga</button>
-                <button onclick="resetAndLoad('trending')" class="nav-item" id="trendBtn">Trending</button>
-                <button onclick="resetAndLoad('mylist')" class="nav-item" id="listBtn">My List</button>
+                <button class="nav-item active" id="topAnime" onclick="setMode('top/anime', 'topAnime')">Top Anime</button>
+                <button class="nav-item" id="topManga" onclick="setMode('top/manga', 'topManga')">Top Manga</button>
+                <button class="nav-item" id="trending" onclick="setMode('seasons/now', 'trending')">Trending</button>
+                <button class="nav-item" id="myList" onclick="setMode('mylist', 'myList')">My List</button>
             </div>
         </div>
         <div class="search-bar-top">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search anime or manga..." autocomplete="off">
+            <i class="fas fa-search" style="color: #666;"></i>
+            <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
         </div>
     </nav>
 
-    <header class="hero-minimal">
+    <header class="hero-section">
         <h2 id="sectionTitle">Highest Rated Anime</h2>
     </header>
 
