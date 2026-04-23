@@ -17,49 +17,50 @@ window.onload = () => {
     loadTrending();
 };
 
-// Mode Switcher
+window.addEventListener('scroll', () => {
+    const nav = document.querySelector('.navbar');
+    if (window.scrollY > 50) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+});
+
 window.setMode = function(mode) {
     currentMode = mode;
-    document.getElementById('tvBtn').classList.toggle('active-nav', mode === 'tv');
-    document.getElementById('movieBtn').classList.toggle('active-nav', mode === 'movie');
-    document.getElementById('animeBtn').classList.toggle('active-nav', mode === 'anime');
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    if(mode === 'tv') document.getElementById('tvBtn').classList.add('active');
+    if(mode === 'movie') document.getElementById('movieBtn').classList.add('active');
+    if(mode === 'anime') document.getElementById('animeBtn').classList.add('active');
     
     searchInput.value = '';
     suggestionsBox.style.display = 'none';
-    
     if(mode === 'anime') loadAnimeTrending();
     else loadTrending();
 };
 
 async function loadTrending() {
-    resultsGrid.innerHTML = `<h2 class="section-title" style="grid-column:1/-1">Trending ${currentMode === 'tv' ? 'Series' : 'Movies'}</h2>`;
-    const response = await fetch(`${BASE_URL}/trending/${currentMode}/week?api_key=${API_KEY}`);
+    document.getElementById('homeBtn').classList.add('active');
+    resultsGrid.innerHTML = '';
+    const response = await fetch(`${BASE_URL}/trending/${currentMode === 'anime' ? 'tv' : currentMode}/week?api_key=${API_KEY}`);
     const data = await response.json();
     displayCards(data.results);
 }
 
 async function loadAnimeTrending() {
-    resultsGrid.innerHTML = `<h2 class="section-title" style="grid-column:1/-1">Trending Anime</h2>`;
+    resultsGrid.innerHTML = '';
     const response = await fetch(`${BASE_URL}/discover/tv?api_key=${API_KEY}&with_genres=16&with_original_language=ja&sort_by=popularity.desc`);
     const data = await response.json();
     displayCards(data.results);
 }
 
-// Suggestions
 searchInput.addEventListener('input', async () => {
     const query = searchInput.value;
-    if (query.length < 2) {
-        suggestionsBox.style.display = 'none';
-        return;
-    }
+    if (query.length < 2) { suggestionsBox.style.display = 'none'; return; }
     const type = currentMode === 'anime' ? 'tv' : currentMode;
     const res = await fetch(`${BASE_URL}/search/${type}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
     const data = await res.json();
-    
     if (data.results && data.results.length > 0) {
         suggestionsBox.innerHTML = data.results.slice(0, 6).map(item => `
             <div class="suggestion-item" onclick="selectSuggestion('${item.id}', '${(item.name || item.title).replace(/'/g, "\\'")}')">
-                <img src="${item.poster_path ? IMG_URL + item.poster_path : 'https://placehold.co/30x45?text=No+Img'}">
+                <img src="${item.poster_path ? IMG_URL + item.poster_path : 'https://placehold.co/30x45'}">
                 <span>${item.name || item.title}</span>
             </div>
         `).join('');
@@ -78,62 +79,58 @@ async function searchMedia() {
     if(!query) return;
     suggestionsBox.style.display = 'none';
     resultsGrid.innerHTML = '<div class="loader"></div>';
-
     const type = currentMode === 'anime' ? 'tv' : currentMode;
     const response = await fetch(`${BASE_URL}/search/${type}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
     const data = await response.json();
-    resultsGrid.innerHTML = `<h2 class="section-title" style="grid-column:1/-1">Results for: ${query}</h2>`;
+    resultsGrid.innerHTML = '';
     displayCards(data.results);
 }
 
 function displayCards(list) {
-    if (!list || list.length === 0) return;
-    list.forEach((item, index) => {
+    if (!list) return;
+    list.forEach(item => {
         if (!item.poster_path) return;
         const card = document.createElement('div');
         card.className = 'card';
-        card.style.animationDelay = `${index * 0.05}s`;
         card.innerHTML = `
-            <img src="${IMG_URL + item.poster_path}" onerror="this.src='https://placehold.co/200x300?text=No+Poster'">
-            <div style="padding: 15px;">
-                <h4>${item.name || item.title}</h4>
-                <p style="color:#ff4d4d; font-size: 0.8rem;">⭐ ${item.vote_average.toFixed(1)}</p>
-            </div>
+            <img src="${IMG_URL + item.poster_path}">
+            <h4>${item.name || item.title}</h4>
         `;
         card.onclick = () => showDetails(item.id, (item.name || item.title).replace(/'/g, "\\'"));
         resultsGrid.appendChild(card);
     });
 }
 
-// THE GLOBAL DETAILS FUNCTION
 async function showDetails(id, title) {
     const type = currentMode === 'anime' ? 'tv' : currentMode;
-    const selectedRegion = regionSelect.value; // GET SELECTED REGION FROM UI
-
+    const selectedRegion = regionSelect.value;
     try {
         const res = await fetch(`${BASE_URL}/${type}/${id}?api_key=${API_KEY}`);
         const detail = await res.json();
+        
+        const videoRes = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${API_KEY}`);
+        const videoData = await videoRes.json();
+        const trailer = videoData.results.find(v => v.type === 'Trailer' && v.site === 'YouTube');
+        const trailerBtn = trailer ? `<a href="https://www.youtube.com/watch?v=${trailer.key}" target="_blank" class="trailer-btn"><i class="fab fa-youtube"></i> Play Trailer</a>` : '';
+
         const watchRes = await fetch(`${BASE_URL}/${type}/${id}/watch/providers?api_key=${API_KEY}`);
         const watchData = await watchRes.json();
-        
         const regionData = watchData.results?.[selectedRegion];
         const providers = regionData?.flatrate || [];
-        const watchLink = regionData?.link || "#"; 
         const inList = myList.some(item => item.id == id);
 
         document.getElementById('modalDetails').innerHTML = `
-            <h2>${title}</h2>
-            <p style="margin:15px 0; font-size:0.9rem; color:#ccc; line-height:1.5;">${detail.overview}</p>
-            <button class="list-add-btn" onclick="toggleMyList('${id}', '${title.replace(/'/g, "\\'")}', '${detail.poster_path}')">
-                ${inList ? 'REMOVE FROM LIST' : 'ADD TO MY LIST'}
-            </button>
-            <h3 style="margin-top:25px; border-top:1px solid #333; padding-top:15px;">Streaming in ${selectedRegion} on:</h3>
-            <div style="display:flex; justify-content:center; flex-wrap:wrap; gap:15px; margin-top:10px;">
-                ${providers.map(p => `
-                    <a href="${watchLink}" target="_blank" title="${p.provider_name}">
-                        <img src="${IMG_URL + p.logo_path}" width="55" style="border-radius:12px; border:2px solid #444;">
-                    </a>
-                `).join('') || `<p style="color:#888;">Not found on subscription in ${selectedRegion}. Try switching regions!</p>`}
+            <div style="padding:40px; text-align:left;">
+                <h1 style="margin-top:0;">${title}</h1>
+                <p style="color:#aaa; margin-bottom:20px;">${detail.overview}</p>
+                ${trailerBtn}
+                <button class="list-add-btn" onclick="toggleMyList('${id}', '${title.replace(/'/g, "\\'")}', '${detail.poster_path}')">
+                    ${inList ? '✓ In Your List' : '+ Add to My List'}
+                </button>
+                <h4 style="margin-top:30px;">Available on (${selectedRegion}):</h4>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    ${providers.map(p => `<img src="${IMG_URL + p.logo_path}" width="45" style="border-radius:8px;">`).join('') || 'Not on Subscription'}
+                </div>
             </div>
         `;
         modal.style.display = 'block';
@@ -150,13 +147,11 @@ window.toggleMyList = function(id, title, poster) {
 };
 
 window.showMyList = function() {
-    resultsGrid.innerHTML = '<h2 class="section-title" style="grid-column:1/-1">Saved to My List</h2>';
-    if (myList.length === 0) { resultsGrid.innerHTML += "<p style='margin-left:20px;'>Your list is empty.</p>"; return; }
-    displayCards(myList.map(i => ({ id: i.id, name: i.title, poster_path: i.poster, vote_average: 0 })));
+    resultsGrid.innerHTML = '';
+    displayCards(myList.map(i => ({ id: i.id, name: i.title, poster_path: i.poster })));
 };
 
 function updateListCount() { listCountSpan.innerText = myList.length; }
-
 document.getElementById('searchBtn').onclick = searchMedia;
 searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') searchMedia(); });
 document.querySelector('.close-modal').onclick = () => modal.style.display = 'none';
